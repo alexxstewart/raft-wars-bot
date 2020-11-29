@@ -20,8 +20,10 @@ slide(x,y) -- slides mouse to x/y coodinates (in pixels)
 
 from ctypes import*
 from ctypes.wintypes import *
+import time
 from time import sleep
 import win32
+import win32.win32api
 
 __all__ = ['click', 'hold', 'release', 'rightclick', 'righthold', 'rightrelease', 'middleclick', 'middlehold', 'middlerelease', 'move', 'slide', 'getpos']
 
@@ -104,7 +106,7 @@ def getpos():
     pt = POINT()
     windll.user32.GetCursorPos(byref(pt))
     return pt.x, pt.y
-
+'''
 def slide(a,b,speed=0):
     while True:
         if speed == 'slow':
@@ -132,11 +134,12 @@ def slide(a,b,speed=0):
         if b > y:
             y += Tspeed
         move(x,y)
-
+'''
 
 def click():
     windll.user32.SendInput(2,pointer(x),sizeof(x[0]))
 
+'''
 def hold():
     windll.user32.SendInput(2, pointer(x2), sizeof(x2[0]))
 
@@ -164,7 +167,33 @@ def middlehold():
 
 def middlerelease():
     windll.user32.mouse_event(MIDDLEUP,0,0,0,0)
+'''
+
+operating_window = []
 
 if __name__ == '__main__':
-    while 1:
-        move(10,1)
+    while True:
+        move(100,100)
+        click()
+        break
+
+    state_left = win32.win32api.GetKeyState(0x01)  # Left button down = 0 or 1. Button up = -127 or -128
+    state_right = win32.win32api.GetKeyState(0x02)  # Right button down = 0 or 1. Button up = -127 or -128
+
+    clickCount = 2
+    while clickCount > 0:
+        a = win32.win32api.GetKeyState(0x01)
+        b = win32.win32api.GetKeyState(0x02)
+
+        if a != state_left:  # Button state changed
+            state_left = a
+            if a < 0:
+                x,y = getpos()
+                operating_window.append(x)
+                operating_window.append(y)
+                clickCount = clickCount - 1
+                print('clicked')
+
+        time.sleep(0.001)
+
+    print(operating_window)
