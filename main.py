@@ -22,8 +22,8 @@ from ctypes import*
 from ctypes.wintypes import *
 import time
 from time import sleep
-import win32
-import win32.win32api
+import win32.win32api as win32api
+import win32.lib.win32con as win32con
 
 __all__ = ['click', 'hold', 'release', 'rightclick', 'righthold', 'rightrelease', 'middleclick', 'middlehold', 'middlerelease', 'move', 'slide', 'getpos']
 
@@ -103,6 +103,7 @@ def move(x,y):
     windll.user32.SetCursorPos(x,y)
 
 def getpos():
+    global pt
     pt = POINT()
     windll.user32.GetCursorPos(byref(pt))
     return pt.x, pt.y
@@ -136,8 +137,12 @@ def slide(a,b,speed=0):
         move(x,y)
 '''
 
-def click():
-    windll.user32.SendInput(2,pointer(x),sizeof(x[0]))
+def click(x,y):
+    print('click event')
+    #windll.user32.SendInput(2,pointer(x),sizeof(x[0]))
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
+    time.sleep(0.005)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
 
 '''
 def hold():
@@ -169,21 +174,65 @@ def middlerelease():
     windll.user32.mouse_event(MIDDLEUP,0,0,0,0)
 '''
 
+
 operating_window = []
 
-if __name__ == '__main__':
-    while True:
-        move(100,100)
-        click()
-        break
+def convert_to_pixels(percentageX, percentageY):
+    xDiff = operating_window[2] - operating_window[0]
+    yDiff = operating_window[3] - operating_window[1]
+    pixel_value_x = round(operating_window[0] + xDiff * percentageX)
+    pixel_value_y = round(operating_window[1] + yDiff * percentageY)
+    return {pixel_value_x, pixel_value_y}
 
-    state_left = win32.win32api.GetKeyState(0x01)  # Left button down = 0 or 1. Button up = -127 or -128
-    state_right = win32.win32api.GetKeyState(0x02)  # Right button down = 0 or 1. Button up = -127 or -128
+def start_game_loop():
+    '''This function handles the logic of the game'''
+
+    # first we have to click the start game button
+    x, y = convert_to_pixels(0.75, 0.8) 
+    move(x, y)
+    time.sleep(1)
+    click(x, y)
+
+    # then click skip button
+    time.sleep(3)
+    x, y = convert_to_pixels(0.95, 0.95) 
+    move(x, y)
+    click(x, y)
+
+    # then mouse click to begin
+    time.sleep(1)
+    click(x, y)
+
+    # then wait till turn
+    time.sleep(6)
+
+    #click skip at bottom left
+    x, y = convert_to_pixels(0.05, 0.95) 
+    move(x, y)
+    click(x, y)
+
+    # now the shots can be fired
+    time.sleep(2)
+    x, y = convert_to_pixels(0.65, 0.62)
+    move(x, y)
+    click(x, y)
+
+    # now the shots can be fired
+    time.sleep(15)
+    x, y = convert_to_pixels(0.65, 0.62)
+    move(x, y)
+    click(x, y)
+
+
+if __name__ == '__main__':
+
+    state_left = win32api.GetKeyState(0x01)  # Left button down = 0 or 1. Button up = -127 or -128
+    state_right = win32api.GetKeyState(0x02)  # Right button down = 0 or 1. Button up = -127 or -128
 
     clickCount = 2
     while clickCount > 0:
-        a = win32.win32api.GetKeyState(0x01)
-        b = win32.win32api.GetKeyState(0x02)
+        a = win32api.GetKeyState(0x01)
+        b = win32api.GetKeyState(0x02)
 
         if a != state_left:  # Button state changed
             state_left = a
@@ -197,3 +246,4 @@ if __name__ == '__main__':
         time.sleep(0.001)
 
     print(operating_window)
+    start_game_loop()
