@@ -189,6 +189,7 @@ def start_game_loop():
 
     # first we have to click the start game button
     x, y = convert_to_pixels(0.75, 0.8) 
+    print(x,y)
     move(x, y)
     time.sleep(1)
     click(x, y)
@@ -196,6 +197,7 @@ def start_game_loop():
     # then click skip button
     time.sleep(3)
     x, y = convert_to_pixels(0.95, 0.95) 
+    print(x,y)
     move(x, y)
     click(x, y)
 
@@ -208,19 +210,26 @@ def start_game_loop():
 
     #click skip at bottom left
     x, y = convert_to_pixels(0.05, 0.95) 
+    print(x,y)
     move(x, y)
     click(x, y)
 
     # now the shots can be fired
     time.sleep(2)
     x, y = convert_to_pixels(0.65, 0.62)
+    print(x,y)
     move(x, y)
     click(x, y)
 
     # now the shots can be fired
     time.sleep(15)
     x, y = convert_to_pixels(0.65, 0.62)
+    print(x,y)
     move(x, y)
+    click(x, y)
+
+    # now the shots can be fired
+    time.sleep(15)
     click(x, y)
 
 
@@ -242,7 +251,7 @@ if __name__ == '__main__':
                 operating_window.append(y)
                 clickCount = clickCount - 1
                 print('clicked')
-
+                
         time.sleep(0.001)
 
     print(operating_window)
